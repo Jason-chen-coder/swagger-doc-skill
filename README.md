@@ -1,52 +1,54 @@
 # swagger-doc-skill
 
-`swagger-doc-skill` helps Codex read Swagger/OpenAPI documentation for you. Give it a Swagger UI, Knife4j, Redoc, FastAPI docs, OpenAPI JSON/YAML URL, or local spec file, and it can help you find APIs, understand request/response fields, inspect type definitions, and export a complete Markdown API document.
+默认中文文档 | [English](README.en.md)
 
-It is useful when you want to ask questions like "which API should I use for login?" instead of manually searching through a large Swagger page.
+`swagger-doc-skill` 是一个帮助 Codex 阅读 Swagger/OpenAPI 文档的 skill。你可以给它一个 Swagger UI、Knife4j、Redoc、FastAPI docs、OpenAPI JSON/YAML 地址，或者本地 spec 文件，它会帮你查询模块、查找接口、理解请求/响应字段、查看类型定义，并导出完整接口文档。
 
-## What It Can Do
+它适合用在这种场景：你不想自己在很大的 Swagger 页面里来回搜索，而是希望直接问 Codex：“我要对接登录功能，应该用哪个接口？”
 
-- Find the real OpenAPI spec behind Swagger UI, Knife4j, Redoc, FastAPI docs, and `swagger-resources`.
-- List modules/tags and endpoint summaries.
-- Search endpoints by feature intent, including common Chinese/English terms such as login/auth/token, task/run/job, and device/equipment/instrument.
-- Show full request parameters, request bodies, response schemas, and reusable DTO/schema definitions.
-- Generate integration guidance with request URL, auth notes, `curl`, and JavaScript `fetch` examples.
-- Export the whole API document to Markdown or JSON.
-- Use a local cache when the docs service is slow or unstable.
+## 它能做什么
 
-## Requirements
+- 自动发现 Swagger UI、Knife4j、Redoc、FastAPI docs 和 `swagger-resources` 背后的真实 OpenAPI 文档。
+- 查询模块/tag、接口列表和接口摘要。
+- 按功能意图查接口，支持常见中英文关键词，例如登录/auth/token、任务/run/job、设备/device/instrument。
+- 查看完整请求参数、请求体、响应结构和可复用 DTO/schema 类型定义。
+- 生成接口对接说明，包括请求 URL、鉴权说明、`curl` 示例和 JavaScript `fetch` 示例。
+- 导出完整 API 文档为 Markdown 或 JSON。
+- 在接口文档服务不稳定时使用本地缓存。
 
-- Codex with custom skills enabled.
-- Node.js available in the environment where Codex runs the bundled script.
-- No Python environment is required.
-- No npm install is required for normal Swagger UI or OpenAPI JSON usage.
-- Direct YAML specs are optional and may require the `yaml` npm package. If YAML parsing is unavailable, use the OpenAPI JSON URL or exported JSON file instead.
+## 环境要求
 
-## Install The Skill
+- Codex 支持自定义 skills。
+- Codex 运行环境里可以使用 Node.js。
+- 不需要 Python 环境。
+- 普通 Swagger UI 或 OpenAPI JSON 场景不需要执行 `npm install`。
+- 直接解析 YAML spec 是可选能力，可能需要 `yaml` npm 包。如果 YAML 解析不可用，建议使用 OpenAPI JSON 地址或导出的 JSON 文件。
 
-### Option 1: Ask Codex To Install It
+## 安装方式
 
-In Codex, say:
+### 方式一：让 Codex 从 GitHub 安装
+
+在 Codex 里说：
 
 > 请从 GitHub 安装这个 skill：
 >
 > https://github.com/Jason-chen-coder/swagger-doc-skill/tree/main/swagger-doc-skill
 
-After installation, restart Codex so the new skill is picked up.
+安装完成后，重启 Codex，让新 skill 生效。
 
-### Option 2: Install Manually
+### 方式二：手动安装
 
-Copy the `swagger-doc-skill/` folder into your Codex skills directory:
+把仓库里的 `swagger-doc-skill/` 文件夹复制到你的 Codex skills 目录：
 
 > `~/.codex/skills/swagger-doc-skill`
 
-Then restart Codex.
+然后重启 Codex。
 
-## Quick Start
+## 快速开始
 
-Use it in chat. You usually do not need to run the script manually.
+直接在聊天里使用即可。大多数情况下，你不需要手动运行脚本。
 
-### List modules
+### 查看模块列表
 
 > User:
 >
@@ -56,7 +58,7 @@ Use it in chat. You usually do not need to run the script manually.
 >
 > 我会使用 `swagger-doc-skill` 读取文档，并返回模块/tag 列表。
 
-### Find APIs for a feature
+### 按功能查接口
 
 > User:
 >
@@ -66,7 +68,7 @@ Use it in chat. You usually do not need to run the script manually.
 >
 > 我会用登录、auth、token 等关键词查找候选接口。如果只命中一个明确接口，会直接给出对接说明；如果命中多个接口，会先让你选择。
 
-### Inspect one endpoint
+### 查看单个接口
 
 > User:
 >
@@ -76,7 +78,7 @@ Use it in chat. You usually do not need to run the script manually.
 >
 > 我会返回 method、URL、鉴权方式、请求头、path/query/body 参数、响应结构和调用示例。
 
-### Export full docs
+### 导出完整文档
 
 > User:
 >
@@ -86,7 +88,7 @@ Use it in chat. You usually do not need to run the script manually.
 >
 > 我会把模块、接口、请求/响应说明和可复用类型定义导出到 Markdown 文件。
 
-### No Swagger URL yet
+### 没有提供 Swagger 地址时
 
 > User:
 >
@@ -96,15 +98,15 @@ Use it in chat. You usually do not need to run the script manually.
 >
 > 请提供 Swagger 文档地址、OpenAPI JSON/YAML 地址，或 `swagger.config.json` 配置文件路径。
 
-## Optional Config
+## 可选配置
 
-If you often query the same API documentation, create a `swagger.config.json` file from `swagger.config.example.json` inside the skill folder. It can store the docs URL, auth token, custom headers, and cache path.
+如果你经常查询同一个接口文档，可以基于 skill 目录里的 `swagger.config.example.json` 创建本地 `swagger.config.json`。它可以保存文档地址、鉴权 token、自定义请求头和缓存路径。
 
-Keep private tokens in your local config file. Do not commit `swagger.config.json`.
+请把私有 token 留在本地配置文件里，不要提交 `swagger.config.json`。
 
-## Output Style
+## 输出风格
 
-For Chinese requests, the skill should answer in Chinese with concise sections such as:
+中文请求默认用中文回答，并尽量使用这些简洁结构：
 
 - 模块列表
 - 接口列表
@@ -113,4 +115,4 @@ For Chinese requests, the skill should answer in Chinese with concise sections s
 - 类型定义
 - 对接示例
 
-It should not invent endpoints. Every answer should come from the Swagger/OpenAPI document that was provided or configured.
+这个 skill 不会编造接口。所有回答都应该来自你提供或配置的 Swagger/OpenAPI 文档。
