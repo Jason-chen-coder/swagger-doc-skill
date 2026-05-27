@@ -136,7 +136,7 @@ Options:
                                             Query/export mode. Default: document
   --format <markdown|json>                    Output format. Default: markdown
   --output, -o <path>                         Output file path. Defaults to stdout
-  --config <path>                             Read swaggerUrl, token, and headers from JSON config
+  --config <path>                             Explicit JSON config with swaggerUrl, token, headers, and cache
   --cache <path>                              Read/write a local spec cache for repeated queries
   --refresh-cache                             Fetch remote spec and overwrite --cache
   --tag <text>                                Filter endpoints by tag/module substring
@@ -161,9 +161,7 @@ Examples:
 }
 
 function applyConfig(args) {
-  const scriptDir = path.dirname(fileURLToPath(import.meta.url));
-  const defaultConfigPath = path.resolve(scriptDir, "..", "swagger.config.json");
-  const configPath = args.config || (!args.url && fs.existsSync(defaultConfigPath) ? defaultConfigPath : "");
+  const configPath = args.config;
   if (!configPath) return;
 
   const resolvedConfigPath = path.resolve(configPath);

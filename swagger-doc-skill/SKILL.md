@@ -29,22 +29,33 @@ YAML specs are optional: if the input is a direct `.yaml` or `.yml` OpenAPI file
 
 Before using this skill, determine where the Swagger/OpenAPI document is:
 
-1. If the user provided a docs URL, OpenAPI JSON/YAML URL, local spec file, or config path, use it.
-2. If `swagger-doc-skill/swagger.config.json` exists in the skill folder and the user has not provided another source, use `--config swagger-doc-skill/swagger.config.json`.
-3. If no docs URL, local spec file, or usable config is available, ask one short question before running tools:
+1. If the user provided a docs URL, OpenAPI JSON/YAML URL, local spec file, or config path in the current request, use it.
+2. If the current chat already has exactly one confirmed docs URL, local spec file, or config path, reuse that source for follow-up questions in the same chat.
+3. If the current chat mentions multiple Swagger/OpenAPI sources and the user's request does not identify which one to use, ask the user to choose before running tools.
+4. If no docs URL, local spec file, or usable config is available in the current chat, ask one short question before running tools:
 
 ```text
 请提供 Swagger 文档地址、OpenAPI JSON/YAML 地址，或 swagger.config.json 配置文件路径。
 ```
 
-Do not guess an API documentation URL, scan unrelated hosts, or invent endpoints when no source is available.
+Do not inherit Swagger sources across chats. A Swagger source confirmed in one chat must not be treated as the source for another chat.
+
+Do not guess an API documentation URL, scan unrelated hosts, or invent endpoints when no source is available. Do not write chat-provided Swagger URLs into `swagger-doc-skill/swagger.config.json` automatically.
+
+The script only reads config files when `--config <path>` is passed explicitly. Do not rely on a shared default `swagger.config.json` in the skill directory for multi-project or multi-chat workflows.
+
+When answering, state the active source before the result, for example:
+
+```text
+当前使用的 Swagger 文档：<docs-url-or-config-path>
+```
 
 ## Feature Integration Lookup
 
 When the user says they want to integrate a feature, such as "我要对接登录功能" or "帮我找创建任务接口", use the docs source and search for endpoint candidates first. `--search` includes a small Chinese/English synonym map for common intents such as login/auth/token, task/run/job, device/equipment/instrument, create/list/update/delete, upload/download:
 
 ```bash
-node swagger-doc-skill/scripts/extract_swagger_docs.mjs --config swagger-doc-skill/swagger.config.json --mode endpoints --search "登录"
+node swagger-doc-skill/scripts/extract_swagger_docs.mjs "http://host/doc#/" --mode endpoints --search "登录"
 ```
 
 Then:
@@ -58,11 +69,11 @@ The integration output includes request URL, auth notes from `securitySchemes`, 
 
 ## Quick Commands
 
-Use a config file when the user repeatedly queries the same Swagger service:
+Use a project-level config file when the user repeatedly queries the same Swagger service:
 
 ```bash
-cp swagger-doc-skill/swagger.config.example.json swagger-doc-skill/swagger.config.json
-node swagger-doc-skill/scripts/extract_swagger_docs.mjs --config swagger-doc-skill/swagger.config.json --mode modules
+cp swagger-doc-skill/swagger.config.example.json ./swagger.config.json
+node swagger-doc-skill/scripts/extract_swagger_docs.mjs --config ./swagger.config.json --mode modules
 ```
 
 Use a local cache for repeated queries or unstable docs servers:

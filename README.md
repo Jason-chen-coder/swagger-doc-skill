@@ -98,11 +98,25 @@
 >
 > 请提供 Swagger 文档地址、OpenAPI JSON/YAML 地址，或 `swagger.config.json` 配置文件路径。
 
+## 多会话和多项目
+
+`swagger-doc-skill` 不会把某个会话里的 Swagger 地址保存成全局默认地址。
+
+- A 会话里确认的 Swagger 地址，只在 A 会话里作为后续问题的上下文。
+- B 会话里可以确认另一个 Swagger 地址，不会自动继承 A 会话的地址。
+- 如果同一个会话里出现多个 Swagger 地址，Codex 应该先确认你要查哪一个。
+- 每次回答接口查询结果时，Codex 应该明确说明当前使用的 Swagger 文档来源。
+- 不建议把业务项目地址写进 skill 目录里的共享配置文件。
+
 ## 可选配置
 
-如果你经常查询同一个接口文档，可以基于 skill 目录里的 `swagger.config.example.json` 创建本地 `swagger.config.json`。它可以保存文档地址、鉴权 token、自定义请求头和缓存路径。
+如果你经常查询同一个接口文档，可以基于 skill 目录里的 `swagger.config.example.json` 创建项目级 `swagger.config.json`。它可以保存文档地址、鉴权 token、自定义请求头和缓存路径。
 
-请把私有 token 留在本地配置文件里，不要提交 `swagger.config.json`。
+配置文件需要显式指定使用，例如在聊天里说：
+
+> 这个项目使用 `./swagger.config.json` 作为 Swagger 配置。
+
+请把私有 token 留在本地配置文件里，不要提交 `swagger.config.json`。脚本不会再自动读取 skill 目录里的共享 `swagger.config.json`，这样可以避免多会话或多项目串用同一个 Swagger 地址。
 
 ## 输出风格
 

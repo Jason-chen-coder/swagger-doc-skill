@@ -98,11 +98,25 @@ Use it in chat. You usually do not need to run the script manually.
 >
 > Please provide a Swagger docs URL, OpenAPI JSON/YAML URL, or `swagger.config.json` config file path.
 
+## Multiple Chats And Projects
+
+`swagger-doc-skill` does not save a Swagger URL from one chat as a global default.
+
+- A Swagger URL confirmed in chat A is only context for follow-up questions in chat A.
+- Chat B can confirm a different Swagger URL and will not automatically inherit chat A's source.
+- If one chat contains multiple Swagger URLs, Codex should ask which one to use before querying.
+- When Codex answers an API query, it should state the active Swagger source.
+- Avoid putting business project URLs into a shared config file inside the skill directory.
+
 ## Optional Config
 
-If you often query the same API documentation, create a local `swagger.config.json` from `swagger.config.example.json` inside the skill folder. It can store the docs URL, auth token, custom headers, and cache path.
+If you often query the same API documentation, create a project-level `swagger.config.json` from `swagger.config.example.json` inside the skill folder. It can store the docs URL, auth token, custom headers, and cache path.
 
-Keep private tokens in your local config file. Do not commit `swagger.config.json`.
+Use the config explicitly in chat, for example:
+
+> This project uses `./swagger.config.json` as the Swagger config.
+
+Keep private tokens in your local config file. Do not commit `swagger.config.json`. The script no longer reads a shared `swagger.config.json` from the skill directory automatically, which avoids mixing Swagger sources across chats or projects.
 
 ## Output Style
 

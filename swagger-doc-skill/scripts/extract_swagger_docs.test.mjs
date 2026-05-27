@@ -182,6 +182,27 @@ const configOutput = execFileSync(
 assert.match(configOutput, /Module List/);
 assert.match(configOutput, /User \| 2 \| GET 1, POST 1/);
 
+const copiedSkillDir = path.join(tempDir, "copied-skill");
+const copiedScriptsDir = path.join(copiedSkillDir, "scripts");
+fs.mkdirSync(copiedScriptsDir, { recursive: true });
+const copiedScriptPath = path.join(copiedScriptsDir, "extract_swagger_docs.mjs");
+fs.copyFileSync(scriptPath, copiedScriptPath);
+fs.writeFileSync(
+  path.join(copiedSkillDir, "swagger.config.json"),
+  JSON.stringify({
+    swaggerUrl: specPath,
+  }),
+  "utf8"
+);
+let implicitConfigFailed = false;
+try {
+  execFileSync(process.execPath, [copiedScriptPath, "--mode", "modules"], { encoding: "utf8", stdio: "pipe" });
+} catch (error) {
+  implicitConfigFailed = true;
+  assert.match(String(error.stderr), /Missing Swagger\/OpenAPI URL/);
+}
+assert.equal(implicitConfigFailed, true, "default skill config should not be loaded implicitly");
+
 const outputPath = path.join(tempDir, "api.md");
 const successOutput = execFileSync(
   process.execPath,
