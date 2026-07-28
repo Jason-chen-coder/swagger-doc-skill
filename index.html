@@ -1,0 +1,298 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta
+      name="description"
+      content="swagger-doc-skill 帮助 Codex 发现真实 OpenAPI spec、筛选接口、展开 schema，并生成可核对的接口对接说明。"
+    >
+    <meta name="theme-color" content="#f4f1e8">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="swagger-doc-skill — 把 Swagger 变成可用的接口上下文">
+    <meta
+      property="og:description"
+      content="从 Swagger UI 找到真实 spec，再筛选 endpoint、展开 schema、生成 curl 与 fetch 示例。"
+    >
+    <title>swagger-doc-skill — Codex 的 Swagger / OpenAPI 阅读工具</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Newsreader:opsz,wght@6..72,500;6..72,600&display=swap"
+      rel="stylesheet"
+    >
+    <link rel="stylesheet" href="./styles.css">
+    <script src="./script.js" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">跳到主要内容</a>
+
+    <header class="site-header">
+      <a class="brand" href="#top" aria-label="swagger-doc-skill 首页">
+        <span class="brand-mark" aria-hidden="true">{ }</span>
+        <span>swagger-doc-skill</span>
+      </a>
+      <nav class="site-nav" aria-label="主要导航">
+        <a href="#workflow">工作流</a>
+        <a href="#modes">查询模式</a>
+        <a href="#boundaries">边界</a>
+      </nav>
+      <a
+        class="header-link"
+        href="https://github.com/Jason-chen-coder/swagger-doc-skill"
+        target="_blank"
+        rel="noreferrer"
+      >
+        GitHub
+        <span aria-hidden="true">↗</span>
+      </a>
+    </header>
+
+    <main id="main-content">
+      <section class="hero" id="top" aria-labelledby="hero-title">
+        <canvas id="spec-map" aria-hidden="true"></canvas>
+        <div class="hero-wash" aria-hidden="true"></div>
+
+        <div class="hero-inner">
+          <div class="hero-copy reveal" style="--delay: 0ms">
+            <p class="eyebrow"><span class="status-dot"></span> Codex skill for OpenAPI</p>
+            <h1 id="hero-title">swagger-doc-skill</h1>
+            <p class="hero-lede">
+              把 Swagger UI 变成可核对的接口上下文。先找到真实 spec，再筛选 endpoint、展开 schema，最后生成 curl 与 fetch 对接示例。
+            </p>
+
+            <div class="hero-actions">
+              <button class="button button-primary" type="button" data-copy-install>
+                复制安装提示
+              </button>
+              <a
+                class="button button-secondary"
+                href="https://github.com/Jason-chen-coder/swagger-doc-skill"
+                target="_blank"
+                rel="noreferrer"
+              >
+                查看 GitHub <span aria-hidden="true">↗</span>
+              </a>
+            </div>
+
+            <div class="install-line" aria-label="Codex 安装提示">
+              <span aria-hidden="true">$</span>
+              <code id="install-prompt">请从 GitHub 安装这个 skill：https://github.com/Jason-chen-coder/swagger-doc-skill/tree/main/swagger-doc-skill</code>
+            </div>
+            <p class="copy-status" id="copy-status" aria-live="polite"></p>
+
+            <ul class="proof-line" aria-label="运行特性">
+              <li>Node.js 单文件脚本</li>
+              <li>JSON 流程无需 npm install</li>
+              <li>Markdown / JSON 输出</li>
+            </ul>
+          </div>
+
+          <figure class="output-tool reveal" style="--delay: 120ms">
+            <figcaption>
+              <span class="fixture-label">regression fixture</span>
+              <span>integration / POST /login</span>
+            </figcaption>
+            <div class="tool-bar" aria-hidden="true">
+              <span></span><span></span><span></span>
+              <strong>api-context.md</strong>
+            </div>
+            <pre><code><span class="code-muted"># Integration Guide</span>
+
+<span class="code-method">POST</span> <span class="code-path">https://api.example.com/v1/login</span>
+Auth: <span class="code-value">none documented</span>
+
+Request body · application/json
+  username  <span class="code-required">string required</span>
+  password  <span class="code-required">string required</span>
+
+Response 200
+  data.token      <span class="code-type">string</span>
+  data.expiresIn  <span class="code-type">integer</span>
+
+<span class="code-muted">curl --request POST /v1/login \</span>
+  <span class="code-accent">--header</span> 'Content-Type: application/json'</code></pre>
+          </figure>
+        </div>
+
+        <a class="hero-next" href="#workflow">
+          <span>从 UI 到可用上下文</span>
+          <span aria-hidden="true">↓</span>
+        </a>
+      </section>
+
+      <section class="workflow section-band" id="workflow" aria-labelledby="workflow-title">
+        <div class="section-intro">
+          <p class="section-index">01 / source first</p>
+          <h2 id="workflow-title">Swagger UI 只是入口</h2>
+          <p>页面能打开，不代表模型已经拿到协议。这个 skill 先确认来源，再谈接口。</p>
+        </div>
+
+        <ol class="workflow-steps">
+          <li>
+            <span class="step-number">01</span>
+            <div>
+              <h3>接收文档入口</h3>
+              <p>Swagger UI、Knife4j、Redoc、FastAPI docs，或直接 JSON / YAML。</p>
+            </div>
+          </li>
+          <li>
+            <span class="step-number">02</span>
+            <div>
+              <h3>发现真实 spec</h3>
+              <p>检查页面配置、embedded swaggerDoc、常见路径与 swagger-resources。</p>
+            </div>
+          </li>
+          <li>
+            <span class="step-number">03</span>
+            <div>
+              <h3>确认 endpoint</h3>
+              <p>按 tag、method、path 或中英文关键词筛选；多候选时先让人选择。</p>
+            </div>
+          </li>
+          <li>
+            <span class="step-number">04</span>
+            <div>
+              <h3>展开接口契约</h3>
+              <p>解析 URL、security、参数、request body、response schema 和本地引用。</p>
+            </div>
+          </li>
+        </ol>
+      </section>
+
+      <section class="modes section-band" id="modes" aria-labelledby="modes-title">
+        <div class="section-intro modes-intro">
+          <p class="section-index">02 / ask less, know more</p>
+          <h2 id="modes-title">按任务控制上下文</h2>
+          <p>不必每次吞下整份 OpenAPI。先选问题，再展开刚好够用的协议细节。</p>
+        </div>
+
+        <div class="mode-console">
+          <div class="mode-tabs" role="tablist" aria-label="Swagger 查询模式">
+            <button type="button" role="tab" aria-selected="true" aria-controls="panel-modules" id="tab-modules" data-mode="modules">modules</button>
+            <button type="button" role="tab" aria-selected="false" aria-controls="panel-endpoints" id="tab-endpoints" data-mode="endpoints" tabindex="-1">endpoints</button>
+            <button type="button" role="tab" aria-selected="false" aria-controls="panel-endpoint" id="tab-endpoint" data-mode="endpoint" tabindex="-1">endpoint</button>
+            <button type="button" role="tab" aria-selected="false" aria-controls="panel-types" id="tab-types" data-mode="types" tabindex="-1">types</button>
+            <button type="button" role="tab" aria-selected="false" aria-controls="panel-integration" id="tab-integration" data-mode="integration" tabindex="-1">integration</button>
+            <button type="button" role="tab" aria-selected="false" aria-controls="panel-document" id="tab-document" data-mode="document" tabindex="-1">document</button>
+          </div>
+
+          <div class="mode-panels">
+            <section role="tabpanel" id="panel-modules" aria-labelledby="tab-modules" data-panel-mode="modules">
+              <p class="panel-kicker">建立系统地图</p>
+              <h3>先看有哪些模块和 tag</h3>
+              <pre><code>--mode modules</code></pre>
+              <p>返回模块、endpoint 数量与 method 分布，不展开不相关的请求体。</p>
+            </section>
+            <section role="tabpanel" id="panel-endpoints" aria-labelledby="tab-endpoints" data-panel-mode="endpoints" hidden>
+              <p class="panel-kicker">缩小候选范围</p>
+              <h3>按功能、tag、method 或 path 找接口</h3>
+              <pre><code>--mode endpoints --search "登录"</code></pre>
+              <p>命中多个时保留 method、path、tag 和 summary，等待确认。</p>
+            </section>
+            <section role="tabpanel" id="panel-endpoint" aria-labelledby="tab-endpoint" data-panel-mode="endpoint" hidden>
+              <p class="panel-kicker">精确到 method + path</p>
+              <h3>查看一个接口怎样请求与响应</h3>
+              <pre><code>--mode endpoint --path "/profile" --method GET</code></pre>
+              <p>展开参数位置、请求体、状态码和响应字段。</p>
+            </section>
+            <section role="tabpanel" id="panel-types" aria-labelledby="tab-types" data-panel-mode="types" hidden>
+              <p class="panel-kicker">还原可复用类型</p>
+              <h3>单独查看 DTO、schema 与 required 字段</h3>
+              <pre><code>--mode types --type UserProfile</code></pre>
+              <p>支持本地 $ref、旧式 originalRef 与递归深度保护。</p>
+            </section>
+            <section role="tabpanel" id="panel-integration" aria-labelledby="tab-integration" data-panel-mode="integration" hidden>
+              <p class="panel-kicker">交给开发任务</p>
+              <h3>生成可核对的接口对接说明</h3>
+              <pre><code>--mode integration --path "/login" --method POST</code></pre>
+              <p>包含请求 URL、鉴权、schema、curl 与 JavaScript fetch。</p>
+            </section>
+            <section role="tabpanel" id="panel-document" aria-labelledby="tab-document" data-panel-mode="document" hidden>
+              <p class="panel-kicker">沉淀完整产物</p>
+              <h3>导出 Markdown 或结构化 JSON</h3>
+              <pre><code>--mode document --output swagger-api.md</code></pre>
+              <p>按模块汇总 endpoint，再附逐接口详情和类型定义。</p>
+            </section>
+          </div>
+        </div>
+      </section>
+
+      <section class="fixture section-band" aria-labelledby="fixture-title">
+        <div class="section-intro">
+          <p class="section-index">03 / one spec, two answers</p>
+          <h2 id="fixture-title">鉴权不能靠常识补</h2>
+          <p>下面来自仓库回归夹具。同一份 spec，两个接口给出相反的鉴权结论。</p>
+        </div>
+
+        <div class="fixture-compare">
+          <article>
+            <header aria-label="POST /login">
+              <span class="method method-post">POST</span>
+              <code>/login</code>
+            </header>
+            <p>接口级 <code>security: []</code> 覆盖全局设置。</p>
+            <dl>
+              <div><dt>Auth</dt><dd>none documented</dd></div>
+              <div><dt>Body</dt><dd>username + password required</dd></div>
+              <div><dt>Response</dt><dd>example 还原 data.token</dd></div>
+            </dl>
+          </article>
+          <article>
+            <header aria-label="GET /profile">
+              <span class="method method-get">GET</span>
+              <code>/profile</code>
+            </header>
+            <p>继承全局 <code>BearerAuth</code>，并解析旧式引用。</p>
+            <dl>
+              <div><dt>Header</dt><dd>Authorization: Bearer &lt;token&gt;</dd></div>
+              <div><dt>Schema</dt><dd>originalRef: UserProfile</dd></div>
+              <div><dt>Fields</dt><dd>id required · name optional</dd></div>
+            </dl>
+          </article>
+        </div>
+      </section>
+
+      <section class="boundaries section-band" id="boundaries" aria-labelledby="boundaries-title">
+        <div class="section-intro">
+          <p class="section-index">04 / stop conditions</p>
+          <h2 id="boundaries-title">该停的时候，先停下来</h2>
+          <p>少生成一点，也不要把来源不明的猜测写进业务代码。</p>
+        </div>
+
+        <ul class="boundary-list">
+          <li><span>01</span><strong>没有文档来源</strong><p>索要 URL、本地 spec 或显式配置，不猜地址。</p></li>
+          <li><span>02</span><strong>候选不唯一</strong><p>列出 method、path、tag 和 summary，请用户选择。</p></li>
+          <li><span>03</span><strong>文档需要登录</strong><p>使用安全 header 或导出的 spec，不绕过认证。</p></li>
+          <li><span>04</span><strong>schema 含义不明</strong><p>保留原名和未知项，不补写业务语义。</p></li>
+        </ul>
+      </section>
+
+      <section class="install-cta" aria-labelledby="install-title">
+        <div>
+          <p class="section-index">ready when your spec is</p>
+          <h2 id="install-title">让 Codex 先确认接口，再开始写代码。</h2>
+        </div>
+        <div class="cta-actions">
+          <button class="button button-light" type="button" data-copy-install>复制安装提示</button>
+          <a
+            class="text-link-light"
+            href="https://github.com/Jason-chen-coder/swagger-doc-skill"
+            target="_blank"
+            rel="noreferrer"
+          >
+            查看源码 <span aria-hidden="true">↗</span>
+          </a>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p>swagger-doc-skill · Built for verifiable API integration.</p>
+      <div>
+        <a href="./README.md">中文文档</a>
+        <a href="./README.en.md">English README</a>
+      </div>
+    </footer>
+  </body>
+</html>
