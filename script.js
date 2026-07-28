@@ -36,10 +36,10 @@ for (const button of copyButtons) {
 
   button.addEventListener("click", async () => {
     const copied = await copyInstallPrompt();
-    const message = copied ? "安装提示已复制，可以粘贴到 Codex。" : "复制失败，请手动选择上方安装提示。";
+    const message = copied ? "安装提示已复制，可以粘贴到 Codex。" : "复制失败，请打开 GitHub 安装页面。";
 
     if (copyStatus) copyStatus.textContent = message;
-    button.textContent = copied ? "已复制" : "请手动复制";
+    button.textContent = copied ? "已复制" : "复制失败";
     button.dataset.state = copied ? "success" : "error";
 
     window.setTimeout(() => {
@@ -115,10 +115,10 @@ function drawSpecMap() {
   }
 
   const desktop = rect.width >= 960;
-  const originX = desktop ? rect.width * 0.54 : rect.width * 0.18;
-  const originY = desktop ? rect.height * 0.16 : rect.height * 0.64;
-  const mapWidth = desktop ? rect.width * 0.42 : rect.width * 0.72;
-  const mapHeight = desktop ? rect.height * 0.64 : rect.height * 0.28;
+  const originX = desktop ? rect.width * 0.54 : rect.width * 0.08;
+  const originY = desktop ? rect.height * 0.16 : rect.height * 0.84;
+  const mapWidth = desktop ? rect.width * 0.42 : rect.width * 0.55;
+  const mapHeight = desktop ? rect.height * 0.64 : rect.height * 0.14;
   const nodes = [
     { x: 0.02, y: 0.35, label: "UI", color: "#d6a91b" },
     { x: 0.25, y: 0.12, label: "spec", color: "#16885a" },
